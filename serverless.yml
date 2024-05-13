@@ -1,0 +1,40 @@
+service: serverless-cart
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+useDotenv: true
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: eu-central-1
+  profile: 'myProfile'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - ec2:CreateNetworkInterface
+      Resource: '*'
+    - Effect: Allow
+      Action:
+        - ec2:CreateNetworkInterface
+        - ec2:DescribeNetworkInterfaces
+        - ec2:DeleteNetworkInterface
+      Resource: '*'
+  environment:
+    PG_HOST: ${env:DB_HOST}
+    PG_DATABASE: ${env:DB_NAME}
+    PG_USERNAME: ${env:DB_USER_NAME}
+    PG_PASSWORD: ${env:DB_PASSWORD}
+    PG_PORT: ${env:DB_PORT}
+
+functions:
+  main:
+    handler: dist/main.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
